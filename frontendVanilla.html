@@ -3,7 +3,9 @@
   <head>
     <meta charset="utf-8" lang="en">
     <title>Frontend Recruitment Test</title>
-    <style type="text/css">@import url("https://fonts.googleapis.com/css?family=Roboto");.arrow,li:hover .arrow{border-left:15px solid transparent;border-top:15px solid transparent}.open .arrow,li:hover .arrow{transform:rotate(45deg)}.visible,li:hover{animation-duration:1s;animation-fill-mode:forwards}body{font-family:Roboto,sans-serif}.container{width:90%;margin:0 auto;background-color:#e1e3e1;padding:1rem}.arrow{width:0;height:0;border-bottom:15px solid #2f2f2f;margin-right:4rem;float:right}li{list-style:none;margin:1rem auto;padding:1rem;background-color:#d0d3d0}li img{width:50px;vertical-align:middle}li:hover{animation-name:hover}li:hover .arrow{border-bottom:15px solid #d0d3d0}@keyframes hover{from{background-color:#d0d3d0;color:#000}to{background-color:#707870;color:#fff}}.hasParent{display:none;width:80%;margin-right:inherit}.visible{display:inline-block;animation-name:slideDown}</style>
+    <link rel="stylesheet" href="">
+    <link rel="stylesheet" type="text/css" href="./frontend.css">
+<!--     <style type="text/css"></style> -->
   </head>
   <body>
     <div class="container">
@@ -11,6 +13,8 @@
         <!-- content injected here -->
       </ul>
     </div>
-    <script type="text/javascript">const dataURL="https://raw.githubusercontent.com/ShootProof/recruiting-front-end/master/testdata.json";let activeItems=[];function render(e){let t=e.id,n=e.name,a=(e.parent,e.thumbnail.description),i=e.thumbnail.href,s=e.hasParent,l=e.hasChild;document.querySelector("ul").innerHTML+=`\n    <li class="${s?"hasParent":"hasNoParent"}" onclick="toggleDrop(this)">\n      <div id="${t}">\n        <img src="${i}" aria-label="${a}" alt="${a}" title="${a}">\n        <span>${n} <div class="${l?"arrow":""}"></div></span>\n      </div>\n    </li> \n  `}function addHasParentProp(e){e.forEach(function(e){-1===e.parent?e.hasParent=!1:e.hasParent=!0})}function secondarySort(e){let t=[];e.map(e=>{if(!1===e.hasParent)t.push(e);else{let n=e.parent;t.splice(n+1,0,e)}});for(let e in t){let n=t[+e+1];n&&t[e].id==n.parent&&(t[e].hasChild=!0)}return t}function toggleDrop(e){e.classList.toggle("open");let t=e.nextElementSibling;t&&t.classList.contains("hasParent")&&(t.classList.toggle("visible"),t.nextElementSibling&&activeItems.indexOf(t.nextElementSibling)&&(t.nextElementSibling.classList.toggle("visible"),activeItems.pop())),t.nextElementSibling&&t.nextElementSibling.classList.contains("visible")&&(console.log("here"),t.nextElementSibling.classList.toggle("visible"),activeItems.push(t.nextElementSibling))}document.addEventListener("DOMContentLoaded",e=>{fetch(dataURL).then(e=>e.json()).then(e=>{let t=e.sort((e,t)=>(null===e.parent?e.parent=-1:null===t.parent&&(t.parent=-1),e.parent-t.parent));addHasParentProp(t),secondarySort(t).forEach(e=>{render(e)})})});</script>
+    <script type="text/javascript" src="./frontendVanilla.js"></script>
+    <!-- <script type="text/javascript">
+    </script> -->
   </body>
 </html>
