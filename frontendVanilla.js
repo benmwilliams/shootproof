@@ -1,5 +1,5 @@
 const dataURL = 'https://raw.githubusercontent.com/ShootProof/recruiting-front-end/master/testdata.json';
-let activeItems = []
+let model = []
 
 document.addEventListener('DOMContentLoaded', (event) => { 
   fetch(dataURL)
@@ -29,7 +29,7 @@ function render(d) {
     thumb = d.thumbnail.href,
     hasParent = d.hasParent,
     hasChild = d.hasChild,
-    list = document.querySelector('ul');
+    list = document.querySelector('ul')
 
     list.innerHTML += `
     <li class="${hasParent ? 'hasParent' : 'hasNoParent'}" onclick="toggleDrop(this)">
@@ -55,26 +55,39 @@ function addHasParentProp(d) {
 // and that addParentProp(x) was successful
 function secondarySort(d) {
   let newArr = []
-  let sorted = d.map( item => {
+  
+  d.forEach( item => {
     if (item.hasParent === false) {
       newArr.push(item)
     } else {
       let parentIndex = item.parent
+      console.log(parentIndex)
       newArr.splice(parentIndex + 1, 0, item)
     }
   })
+
   for (let i in newArr) {
     let next = newArr[+i + 1]
     if (next && newArr[i].id == next.parent) {
       newArr[i].hasChild = true
     }
   }
+
+  newArr.forEach(d => {
+    let modelData = {
+      id: d.id,
+      hasParent: d.hasParent,
+      hasChild: d.hasChild,
+      isOpen: 0
+    }
+    model.splice(newArr.indexOf(d), 0, modelData)
+  })
   return newArr
 }
 
 // NOTE: logic is kind of sloppy here...
 // I think it will only handle items nested 2 deep
-function toggleDrop(e) {
+/*function toggleDrop(e) {
   e.classList.toggle('open')
   let sibling = e.nextElementSibling
   
@@ -91,5 +104,25 @@ function toggleDrop(e) {
     console.log('here')
     sibling.nextElementSibling.classList.toggle('visible')
     activeItems.push(sibling.nextElementSibling)
+  }
+}
+*/
+function toggleDrop(e){
+  let eid = Number(e.childNodes[1].attributes[0].value),
+    sibling = e.nextElementSibling,
+    m = model[eid]
+    next = model[eid + 1]
+console.log(m.hasParent)
+console.log(eid)
+  m.isOpen ^= true
+
+  if (m.isOpen) {
+    e.classList.add('open')
+  } else {
+    e.classList.remove('open')
+  }
+
+  if (m.hasChild) {
+    sibling.classList.toggle('visible')
   }
 }
