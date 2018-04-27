@@ -1,4 +1,7 @@
 const dataURL = 'https://raw.githubusercontent.com/ShootProof/recruiting-front-end/master/testdata.json';
+
+// somewhere I hosed up the hasParent prop
+// likely in how I'm building the model
 let model = []
 
 document.addEventListener('DOMContentLoaded', (event) => { 
@@ -16,29 +19,49 @@ document.addEventListener('DOMContentLoaded', (event) => {
     addHasParentProp(primarySort)
     let sorted = secondarySort(primarySort)
     sorted.forEach(d => {
-      render(d)
+
+        let modelData = {
+        id: d.id, 
+        name: d.name,
+        parent: d.parent,
+        altText: d.thumbnail.description,
+        thumb: d.thumbnail.href,
+        hasParent: d.hasParent,
+        hasChild: d.hasChild,
+        isOpen: false,
+        isVisible: false
+      }
+
+      model.push(modelData)
+
     })
+    
+    render()
+
   })
 });
 
-function render(d) {
-  let id = d.id, 
-    name = d.name,
-    parent = d.parent,
-    altText = d.thumbnail.description,
-    thumb = d.thumbnail.href,
-    hasParent = d.hasParent,
-    hasChild = d.hasChild,
-    list = document.querySelector('ul')
+function render() {
+
+  let list = document.querySelector('ul')
+  list.innerHTML = ''
+
+  model.forEach( d => {
+    if (!d.hasParent) {d.isVisible = true}
 
     list.innerHTML += `
-    <li class="${hasParent ? 'hasParent' : 'hasNoParent'}" onclick="toggleDrop(this)">
-      <div id="${id}">
-        <img src="${thumb}" aria-label="${altText}" alt="${altText}" title="${altText}">
-        <span>${name} <div class="${hasChild ? 'arrow' : ''}"></div></span>
-      </div>
-    </li> 
-  `
+      <li id="${d.id}"
+        class="
+          ${d.isVisible ? 'visible' : ''}
+          ${d.hasChild ? 'isParent' : 'isNotParent'}
+        " onclick="toggleDrop(${model.indexOf(d)})">
+        <div class="${d.isOpen ? 'open' : '' }">
+          <img src="${d.thumb}" aria-label="${d.altText}" alt="${d.altText}" title="${d.altText}">
+          <span>${d.name} <div class="${d.hasChild ? 'arrow' : ''}"></div></span>
+        </div>
+      </li> 
+    `
+  })
 }
 
 function addHasParentProp(d) {
@@ -60,69 +83,30 @@ function secondarySort(d) {
     if (item.hasParent === false) {
       newArr.push(item)
     } else {
-      let parentIndex = item.parent
-      console.log(parentIndex)
+      let parentIndex = Number(item.parent)
       newArr.splice(parentIndex + 1, 0, item)
     }
   })
 
   for (let i in newArr) {
-    let next = newArr[+i + 1]
+    let next = newArr[Number(i) + 1]
     if (next && newArr[i].id == next.parent) {
       newArr[i].hasChild = true
+    } else {
+      newArr[i].hasChild = false
     }
   }
-
-  newArr.forEach(d => {
-    let modelData = {
-      id: d.id,
-      hasParent: d.hasParent,
-      hasChild: d.hasChild,
-      isOpen: 0
-    }
-    model.splice(newArr.indexOf(d), 0, modelData)
-  })
   return newArr
 }
 
-// NOTE: logic is kind of sloppy here...
-// I think it will only handle items nested 2 deep
-/*function toggleDrop(e) {
-  e.classList.toggle('open')
-  let sibling = e.nextElementSibling
-  
-  if (sibling && sibling.classList.contains('hasParent')){
-    sibling.classList.toggle('visible')
-    
-    if (sibling.nextElementSibling && activeItems.indexOf(sibling.nextElementSibling)) {
-      sibling.nextElementSibling.classList.toggle('visible')
-      activeItems.pop()
-    }
-  }
-  
-  if (sibling.nextElementSibling && sibling.nextElementSibling.classList.contains('visible')) {
-    console.log('here')
-    sibling.nextElementSibling.classList.toggle('visible')
-    activeItems.push(sibling.nextElementSibling)
-  }
-}
-*/
-function toggleDrop(e){
-  let eid = Number(e.childNodes[1].attributes[0].value),
-    sibling = e.nextElementSibling,
-    m = model[eid]
-    next = model[eid + 1]
-console.log(m.hasParent)
-console.log(eid)
-  m.isOpen ^= true
+function toggleDrop(t){
+  let target = model[t],
+    next = model[t + 1]
 
-  if (m.isOpen) {
-    e.classList.add('open')
-  } else {
-    e.classList.remove('open')
-  }
+  target.isOpen ^= true
+  if (next.hasParent) { next.isVisible ^= true }
 
-  if (m.hasChild) {
-    sibling.classList.toggle('visible')
-  }
+  if (next.isOpen && next.hasParent) { model[t + 2].isVisible ^= true }
+
+  render()
 }
